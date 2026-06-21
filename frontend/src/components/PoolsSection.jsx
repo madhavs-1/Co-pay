@@ -1,5 +1,5 @@
 
-const poolColors = ['#6750A4', '#D0BCFF', '#4A4458', '#E8DEF8'];
+const poolColors = ['#5B4CDB', '#8B7CF6', '#3D3494', '#C4B8FC'];
 
 export default function PoolsSection({ groups, onSelect }) {
     return (

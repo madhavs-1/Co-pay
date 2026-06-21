@@ -1,15 +1,15 @@
 :root {
-    --bg-color: #FFFFFF;
-    --surface-color: #F8F9FA;
-    --text-primary: #000000;
-    --text-secondary: #5F6368;
-    --accent-color: #7F00FF; 
-    --accent-btn-bg: #7F00FF; 
-    --accent-dark: #E6D0FF; 
-    --bubble-bg: #F3E8FF;
-    --surface-hover: #F0F0F0;
-    --danger-color: #EA4335;
-    --success-color: #34A853;
+    --bg-color: #FAFAFA;
+    --surface-color: #F2F3F5;
+    --text-primary: #1A1A2E;
+    --text-secondary: #6B7280;
+    --accent-color: #5B4CDB;
+    --accent-btn-bg: #5B4CDB;
+    --accent-dark: #E0DBF5;
+    --bubble-bg: #EDE9FE;
+    --surface-hover: #E8E8ED;
+    --danger-color: #E53935;
+    --success-color: #2E7D32;
     --text-inverse: #FFFFFF;
     --font-family: 'Outfit', sans-serif;
 }
@@ -352,19 +352,47 @@ body {
 }
 
 body.dark-mode {
-    --bg-color: #000000;
-    --surface-color: #121212;
-    --text-primary: #FFFFFF;
-    --text-secondary: #A0A0A0;
-    --accent-color: #B388FF;
-    --accent-btn-bg: #B388FF;
-    --accent-dark: #3A0078;
-    --bubble-bg: #2B0059;
-    --bubble-bg: #2B0059;
-    --surface-hover: #1E1E1E;
-    --danger-color: #FF5252;
-    --success-color: #4CAF50;
-    --text-inverse: #000000;
+    --bg-color: #0D0D12;
+    --surface-color: #161621;
+    --text-primary: #E8E8ED;
+    --text-secondary: #8B8FA3;
+    --accent-color: #8B7CF6;
+    --accent-btn-bg: #7C6BF0;
+    --accent-dark: #2A2545;
+    --bubble-bg: #1E1A36;
+    --surface-hover: #1F1F2E;
+    --danger-color: #FF6B6B;
+    --success-color: #66BB6A;
+    --text-inverse: #FFFFFF;
+}
+
+/* Dark mode button overrides */
+body.dark-mode .btn-requests {
+    background-color: var(--accent-btn-bg);
+    color: var(--text-inverse);
+}
+body.dark-mode .btn-leave {
+    border-color: var(--surface-hover);
+    color: var(--text-secondary);
+}
+body.dark-mode .btn-leave:hover {
+    border-color: var(--text-secondary);
+    background-color: var(--surface-hover);
+}
+body.dark-mode .btn-delete {
+    color: var(--danger-color);
+    border-color: rgba(255, 107, 107, 0.25);
+}
+body.dark-mode .btn-delete:hover {
+    background-color: rgba(255, 107, 107, 0.1);
+    border-color: var(--danger-color);
+}
+body.dark-mode .chat-pay-btn {
+    box-shadow: 0 4px 16px rgba(124, 107, 240, 0.25);
+}
+body.dark-mode .toast {
+    background: var(--surface-color);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
 }
 
 .bubble-title {
@@ -430,12 +458,17 @@ body.dark-mode {
     background-color: var(--accent-color);
     color: var(--text-inverse);
     border: none;
-    padding: 16px 32px;
-    border-radius: 32px;
-    font-size: 1rem;
+    padding: 14px 28px;
+    border-radius: 28px;
+    font-size: 0.95rem;
     font-weight: 500;
+    font-family: var(--font-family);
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(208, 188, 255, 0.3);
+    box-shadow: 0 4px 16px rgba(91, 76, 219, 0.2);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.chat-pay-btn:active {
+    transform: scale(0.96);
 }
 
 /* Numpad Overlay styling kept from before */
