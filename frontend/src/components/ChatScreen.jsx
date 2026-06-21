@@ -65,13 +65,13 @@ export default function ChatScreen({ activeGroup, currentUserId, onBack, onPay, 
                     <div 
                         className="chat-avatar" 
                         style={{
-                            backgroundColor: 'var(--surface-hover)',
-                            border: '1px solid var(--surface-hover)',
+                            backgroundColor: 'var(--accent-btn-bg)',
+                            border: 'none',
                             cursor: activeGroup.admin_id === currentUserId ? 'pointer' : 'default',
                             backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
-                            color: imageUrl ? 'transparent' : 'var(--text-primary)'
+                            color: imageUrl ? 'transparent' : 'var(--text-inverse)'
                         }}
                         onClick={() => {
                             if(activeGroup.admin_id === currentUserId) fileInputRef.current?.click();
