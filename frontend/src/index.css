@@ -42,14 +42,14 @@ body {
 .banner {
     width: 100%;
     height: 160px;
-    background: linear-gradient(to bottom, #111, #1e3a29);
+    background: linear-gradient(to bottom, var(--surface-hover), var(--surface-color));
     position: relative;
     padding: 20px;
 }
 .banner-title {
     font-size: 1.5rem;
     font-weight: 400;
-    color: #fff;
+    color: var(--text-primary);
 }
 
 /* Actions Grid */
@@ -99,7 +99,7 @@ body {
     align-items: center;
     gap: 12px;
     background-color: transparent;
-    border: 1px solid #444;
+    border: 1px solid var(--surface-hover);
     padding: 10px 16px;
     border-radius: 24px;
     min-width: max-content;
@@ -144,7 +144,7 @@ body {
     align-items: center;
     font-size: 1.5rem;
     font-weight: 500;
-    color: #fff;
+    color: var(--text-primary);
     position: relative;
 }
 .online-dot {
@@ -200,7 +200,7 @@ body {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    color: #fff;
+    color: var(--text-inverse);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -247,7 +247,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #fff;
+    color: var(--text-inverse);
     font-weight: 500;
 }
 .chat-name {
@@ -351,7 +351,7 @@ body.dark-mode {
 .reward-icon {
     width: 24px;
     height: 24px;
-    background-color: #4285F4;
+    background-color: var(--accent-btn-bg);
     border-radius: 4px;
 }
 .bubble-time {
@@ -371,7 +371,7 @@ body.dark-mode {
 }
 .chat-pay-btn {
     background-color: var(--accent-color);
-    color: #fff;
+    color: var(--text-inverse);
     border: none;
     padding: 16px 32px;
     border-radius: 32px;
@@ -431,7 +431,6 @@ body.dark-mode {
 .balance-section {
     padding: 20px;
     background: var(--surface-color);
-    border-bottom: 1px solid var(--accent-dark);
 }
 .balance-card {
     display: flex;
