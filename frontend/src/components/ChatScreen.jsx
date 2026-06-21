@@ -91,12 +91,12 @@ export default function ChatScreen({ activeGroup, currentUserId, onBack, onPay, 
                         <div className="chat-sub">Code: {activeGroup.join_code} • Balance: ₹{activeGroup.balance.toFixed(2)}</div>
                     </div>
                 </div>
-                <div className="chat-header-actions" style={{display: 'flex', gap: '8px'}}>
+                <div className="chat-header-actions" style={{display: 'flex', gap: '6px', alignItems: 'center'}}>
                     {activeGroup.admin_id === currentUserId && (
-                        <button className="pill-btn" style={{padding: '6px 12px', fontSize: '0.75rem', minWidth: 'auto'}} onClick={onRequestClick}>Requests</button>
+                        <button className="btn-requests" onClick={onRequestClick}>Requests</button>
                     )}
-                    <button className="pill-btn" style={{padding: '6px 12px', fontSize: '0.75rem', minWidth: 'auto'}} onClick={onLeave}>Leave</button>
-                    <button className="pill-btn" style={{padding: '6px 12px', fontSize: '0.75rem', minWidth: 'auto'}} onClick={onDelete}>Delete</button>
+                    <button className="btn-leave" onClick={onLeave}>Leave</button>
+                    <button className="btn-delete" onClick={onDelete}>Delete</button>
                 </div>
             </header>
 
