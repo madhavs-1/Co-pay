@@ -69,8 +69,24 @@ def get_groups():
         "balance": format_number(g.balance),
         "join_code": g.join_code,
         "admin_id": g.admin_id,
+        "image_url": g.image_url,
         "members": [{"id": m.id, "name": m.name} for m in g.members]
     } for g in groups])
+
+@app.route("/api/pool/<int:group_id>/image", methods=["POST"])
+def update_group_image(group_id):
+    group = Group.query.get(group_id)
+    if not group:
+        return jsonify({"error": "Pool not found"}), 404
+        
+    data = request.json
+    image_url = data.get("image_url")
+    if not image_url:
+        return jsonify({"error": "No image data provided"}), 400
+        
+    group.image_url = image_url
+    db.session.commit()
+    return jsonify({"success": True})
 
 @app.route("/api/transactions/<int:group_id>", methods=["GET"])
 def get_transactions(group_id):

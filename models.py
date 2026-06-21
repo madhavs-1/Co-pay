@@ -28,6 +28,7 @@ class Group(db.Model):
     balance = db.Column(db.Numeric(precision=10, scale=2), default=0.00, nullable=False)
     join_code = db.Column(db.String(10), unique=True, nullable=True)
     admin_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    image_url = db.Column(db.Text, nullable=True) # Will store base64 string
     
     # SQL level protection against negative balances
     __table_args__ = (

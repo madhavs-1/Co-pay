@@ -3,7 +3,13 @@ import { useState, useEffect, useRef } from 'react';
 export default function ChatScreen({ activeGroup, currentUserId, onBack, onPay, onAdd, onScanQR, onLeave, onDelete, onRequestClick, apiBase, refreshKey }) {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [imageUrl, setImageUrl] = useState(activeGroup?.image_url);
     const chatEndRef = useRef(null);
+    const fileInputRef = useRef(null);
+
+    useEffect(() => {
+        setImageUrl(activeGroup?.image_url);
+    }, [activeGroup]);
 
     useEffect(() => {
         if (!activeGroup) return;
@@ -28,12 +34,58 @@ export default function ChatScreen({ activeGroup, currentUserId, onBack, onPay, 
 
     const initials = activeGroup.name.substring(0, 1).toUpperCase();
 
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const base64String = reader.result;
+            try {
+                const res = await fetch(`${apiBase}/pool/${activeGroup.id}/image`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image_url: base64String })
+                });
+                if(res.ok) {
+                    activeGroup.image_url = base64String;
+                    setImageUrl(base64String);
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
     return (
         <div className="chat-screen">
             <header className="chat-header">
                 <span className="material-symbols-rounded icon-btn" onClick={onBack}>arrow_back</span>
                 <div className="chat-header-info">
-                    <div className="chat-avatar" style={{backgroundColor: 'var(--accent-btn-bg)'}}>{initials}</div>
+                    <div 
+                        className="chat-avatar" 
+                        style={{
+                            backgroundColor: 'var(--surface-hover)',
+                            border: '1px solid var(--surface-hover)',
+                            cursor: activeGroup.admin_id === currentUserId ? 'pointer' : 'default',
+                            backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            color: imageUrl ? 'transparent' : 'var(--text-primary)'
+                        }}
+                        onClick={() => {
+                            if(activeGroup.admin_id === currentUserId) fileInputRef.current?.click();
+                        }}
+                    >
+                        {imageUrl ? '' : initials}
+                    </div>
+                    <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        style={{display: 'none'}} 
+                        accept="image/*"
+                        onChange={handleImageUpload} 
+                    />
                     <div className="chat-name-details">
                         <div className="chat-name">{activeGroup.name}</div>
                         <div className="chat-sub">Code: {activeGroup.join_code} • Balance: ₹{activeGroup.balance.toFixed(2)}</div>
@@ -54,7 +106,7 @@ export default function ChatScreen({ activeGroup, currentUserId, onBack, onPay, 
                 </div>
 
                 {loading ? (
-                    <div style={{ textAlign: 'center', color: '#888', marginTop: '20px' }}>Loading...</div>
+                    <div style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: '20px' }}>Loading...</div>
                 ) : transactions.map(tx => {
                     const isDeposit = tx.type === 'DEPOSIT';
                     const dateStr = new Date(tx.timestamp).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });

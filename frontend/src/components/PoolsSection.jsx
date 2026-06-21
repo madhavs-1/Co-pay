@@ -1,4 +1,5 @@
-const colors = ['#6750A4', '#D0BCFF', '#4A4458', '#E8DEF8'];
+
+const poolColors = ['#6750A4', '#D0BCFF', '#4A4458', '#E8DEF8'];
 
 export default function PoolsSection({ groups, onSelect }) {
     return (
@@ -7,11 +8,18 @@ export default function PoolsSection({ groups, onSelect }) {
             <div className="people-grid">
                 {groups.map((group, index) => {
                     const initials = group.name.substring(0, 1).toUpperCase();
-                    const bgColor = colors[index % colors.length];
-                    const textColor = (index % 2 === 0) ? '#fff' : '#000'; // alternate text colors
+                    const bgColor = poolColors[index % poolColors.length];
+                    const textColor = (index % 2 === 0) ? '#fff' : '#000';
                     return (
                         <div key={group.id} className="person-item" onClick={() => onSelect(group.id)}>
-                            <div className="person-avatar" style={{ backgroundColor: bgColor, color: textColor }}>
+                            <div className="person-avatar" style={{ 
+                                backgroundColor: bgColor, 
+                                color: group.image_url ? 'transparent' : textColor, 
+                                border: 'none',
+                                backgroundImage: group.image_url ? `url(${group.image_url})` : 'none',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center'
+                            }}>
                                 {initials}
                                 {index % 2 === 0 && <div className="online-dot"></div>}
                             </div>
