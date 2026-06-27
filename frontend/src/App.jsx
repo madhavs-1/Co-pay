@@ -182,7 +182,13 @@ function App() {
         if (data.user_balance !== undefined) {
           setWalletBalance(data.user_balance);
         }
-        showToast(isAdd ? `Added ₹${amount.toFixed(2)} to pool!` : `Paid ₹${amount.toFixed(2)} successfully!`);
+        const paidMsg = `Paid ₹${amount.toFixed(2)} successfully!`;
+        if (!isAdd && data.splits?.length) {
+          const splitSummary = data.splits.map(s => `${s.user_name} ₹${Number(s.amount).toFixed(2)}`).join(', ');
+          showToast(`${paidMsg} Split: ${splitSummary}`);
+        } else {
+          showToast(isAdd ? `Added ₹${amount.toFixed(2)} to pool!` : paidMsg);
+        }
         closeNumpad();
         setTxRefreshKey(k => k + 1);
       } else {

@@ -6,14 +6,16 @@ import logging
 import re
 from datetime import datetime, timezone
 from decimal import Decimal
-from flask import Flask, request, jsonify
-from models import db, User, Group, Transaction, JoinRequest
+from flask import Flask, request, jsonify, send_from_directory
+from models import db, User, Group, Transaction, TransactionSplit, JoinRequest
+from ledger import split_with_random_remainder
+from db_migrate import upgrade_schema
 from sqlalchemy.exc import IntegrityError
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///copay.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///copay.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
@@ -29,6 +31,13 @@ def format_number(d):
         return int(d)
     return float(d)
 
+def format_splits(transaction):
+    return [{
+        "user_id": s.user_id,
+        "user_name": s.user.name,
+        "amount": format_number(s.amount),
+    } for s in transaction.splits]
+
 def normalize_phone(phone):
     if not phone: return None
     p = re.sub(r'\s+', '', phone)
@@ -40,7 +49,7 @@ def normalize_phone(phone):
 
 # Initialize database and mock data
 with app.app_context():
-    db.create_all()
+    upgrade_schema()
     # Add mock data if empty
     if not User.query.first():
         u1 = User(name='Madhav', phone='9876543210', balance=Decimal('0.00'))
@@ -96,7 +105,8 @@ def get_transactions(group_id):
         "amount": format_number(t.amount),
         "type": t.type,
         "description": t.description,
-        "timestamp": t.timestamp.isoformat()
+        "timestamp": t.timestamp.isoformat(),
+        "splits": format_splits(t) if t.splits else None,
     } for t in transactions])
 
 @app.route("/api/me", methods=["GET"])
@@ -316,7 +326,10 @@ def delete_group(group_id):
     if not group:
         return jsonify({"error": "Group not found."}), 404
     
-    # Delete transactions first to avoid constraint issues if any
+    # Delete splits and transactions first to avoid constraint issues if any
+    tx_ids = [t.id for t in Transaction.query.filter_by(group_id=group_id).all()]
+    if tx_ids:
+        TransactionSplit.query.filter(TransactionSplit.transaction_id.in_(tx_ids)).delete(synchronize_session=False)
     Transaction.query.filter_by(group_id=group_id).delete()
     db.session.delete(group)
     db.session.commit()
@@ -397,11 +410,42 @@ def pay_from_pool():
         
         tx = Transaction(group_id=group_id, user_id=user_id, amount=-amount, type="PAYMENT", description=description)
         db.session.add(tx)
+        db.session.flush()
+
+        member_ids = data.get("member_ids")
+        if member_ids:
+            split_members = [m for m in group.members if m.id in member_ids]
+            if len(split_members) != len(member_ids):
+                db.session.rollback()
+                return jsonify({"error": "One or more member_ids are not in this pool."}), 400
+        else:
+            split_members = list(group.members)
+
+        if not split_members:
+            db.session.rollback()
+            return jsonify({"error": "Cannot split payment: pool has no members."}), 400
+
+        shares = split_with_random_remainder(amount, [m.id for m in split_members])
+        for member in split_members:
+            db.session.add(TransactionSplit(
+                transaction_id=tx.id,
+                user_id=member.id,
+                amount=shares[member.id],
+            ))
         
         # Commit the transaction to release the lock
         db.session.commit()
         
-        return jsonify({"success": True, "new_balance": format_number(group.balance), "message": "Payment successful."})
+        return jsonify({
+            "success": True,
+            "new_balance": format_number(group.balance),
+            "message": "Payment successful.",
+            "splits": [{
+                "user_id": m.id,
+                "user_name": m.name,
+                "amount": format_number(shares[m.id]),
+            } for m in split_members],
+        })
 
     except IntegrityError as e:
         db.session.rollback()
@@ -411,6 +455,30 @@ def pay_from_pool():
         db.session.rollback()
         logger.error(f"Unexpected error: {e}")
         return jsonify({"error": "An error occurred during payment processing."}), 500
+
+FRONTEND_DIST = os.path.join(os.path.dirname(__file__), "frontend", "dist")
+
+
+@app.route("/api/health")
+def health():
+    return jsonify({"status": "ok", "service": "co-pay"})
+
+
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve_frontend(path):
+    if path.startswith("api/"):
+        return jsonify({"error": "Not found"}), 404
+    if path and os.path.isfile(os.path.join(FRONTEND_DIST, path)):
+        return send_from_directory(FRONTEND_DIST, path)
+    index = os.path.join(FRONTEND_DIST, "index.html")
+    if os.path.isfile(index):
+        return send_from_directory(FRONTEND_DIST, "index.html")
+    return jsonify({
+        "message": "Co-pay API is running",
+        "health": "/api/health",
+        "groups": "/api/groups",
+    })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

@@ -121,6 +121,11 @@ export default function ChatScreen({ activeGroup, currentUserId, onBack, onPay, 
                                 <div className="bubble-amount">
                                     ₹{Math.abs(tx.amount)}
                                 </div>
+                                {!isDeposit && tx.splits?.length > 0 && (
+                                    <div className="bubble-splits" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
+                                        Split: {tx.splits.map(s => `${s.user_name} ₹${Number(s.amount).toFixed(2)}`).join(' · ')}
+                                    </div>
+                                )}
                                 <div className="bubble-status">
                                     <span className="material-symbols-rounded check-icon">check_circle</span>
                                     <span>{isDeposit ? 'Added' : 'Paid'} • {dateStr}</span>
