@@ -47,6 +47,16 @@ class Transaction(db.Model):
     
     group = db.relationship('Group', backref=db.backref('transactions', lazy=True))
     user = db.relationship('User')
+    splits = db.relationship('TransactionSplit', backref='transaction', lazy=True, cascade='all, delete-orphan')
+
+class TransactionSplit(db.Model):
+    __tablename__ = 'transaction_splits'
+    id = db.Column(db.Integer, primary_key=True)
+    transaction_id = db.Column(db.Integer, db.ForeignKey('transactions.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    amount = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
+
+    user = db.relationship('User')
 
 class JoinRequest(db.Model):
     __tablename__ = 'join_requests'
